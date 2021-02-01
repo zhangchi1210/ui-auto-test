@@ -1,0 +1,2 @@
+Appium-Python-Client==1.0.2
+logbook==1.5.3
