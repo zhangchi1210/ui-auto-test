@@ -1,5 +1,5 @@
 # encoding: utf-8
-import datetime,os
+import datetime, os
 
 from utils import getprojectpath
 from utils.appiumserver import AppiumServer
@@ -11,10 +11,10 @@ result_path = os.path.join(project_path, 'result')
 config_path = os.path.join(project_path, 'config')
 l_devices = []
 
-
 '''主运行文件'''
-class AllTest:
 
+
+class AllTest:
 
     def __init__(self):
         global resultPath
@@ -38,7 +38,6 @@ class AllTest:
 
         else:
             LOG.info("没有可用的安卓设备")
-
 
 
 if __name__ == '__main__':
