@@ -19,7 +19,7 @@
 ### 3、python-client安装(`appium-client`)
 ### 4、移动设备(`逍遥模拟器`)
 * 下载地址：`https://www.xyaz.cn/`
-* 将模拟器文件`..\Microvirt\MEmu\adb.exe`替换sdk中文件`D:\tool\android-sdk-windows\platform-tools\adb.exe`
+* 将模拟器文件`..\Microvirt\MEmu\adb.exe`替换sdk中文件`..\android-sdk-windows\platform-tools\adb.exe`
 ## 二、框架结构
 ### 1、框架原理
 框架结构设计分为4层，自下而上分别为：对象库`base`层、页面操作`page`层、测试用例集`testcase`层和主程序`runAll.py`。
