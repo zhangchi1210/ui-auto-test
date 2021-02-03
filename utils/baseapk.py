@@ -1,5 +1,5 @@
 import re,subprocess,os
-from utils.log import LOG
+from utils.log import Log
 
 
 '''

@@ -1,3 +1,4 @@
 selenium==3.141.0
 Appium-Python-Client==1.0.2
 logbook==1.5.3
+configparser==5.0.1

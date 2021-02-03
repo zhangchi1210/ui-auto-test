@@ -3,7 +3,7 @@ import os,urllib.request
 from multiprocessing import Process
 import threading,time,platform,subprocess
 
-from utils.log import LOG
+from utils.log import Log
 
 
 class RunServer(threading.Thread):#启动服务的线程

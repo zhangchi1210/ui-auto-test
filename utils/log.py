@@ -1,33 +1,58 @@
 # -*- coding: utf-8 -*-
+import os, time, logging
 
-import os,logbook
-from logbook.more import ColorizedStderrHandler
-from functools import wraps
+from utils import getprojectpath
 
-'''日志相关'''
-check_path='.'
-LOG_DIR = os.path.join(check_path, 'log')
-file_stream = False
-if not os.path.exists(LOG_DIR):
-    os.makedirs(LOG_DIR)
-    file_stream = True
+# create the log_path
+now = time.strftime('%Y%m%d%H%M%S')
+project_path = getprojectpath.get_project_path()  # 项目路径
+log_path = os.path.join(project_path, 'log')  # log文件夹路径
+if not os.path.exists(log_path):
+    os.mkdir(log_path)
 
-def get_logger(name='appium', file_log=file_stream, level=''):
-    logbook.set_datetime_format('local')
-    ColorizedStderrHandler(bubble=False, level=level).push_thread()
-    logbook.TimedRotatingFileHandler(
-            os.path.join(LOG_DIR, '%s.log' % name),
-            date_format='%Y-%m-%d-%H', bubble=True, encoding='utf-8').push_thread()
-    return logbook.Logger(name)
-LOG = get_logger(file_log=file_stream, level='INFO')
 
-def logger(param):
-    def wrap(function):
-        @wraps(function)
-        def _wrap(*args, **kwargs):
-            LOG.info("当前模块 {}".format(param))
-            LOG.info("全部kwargs参数信息 , {}".format(str(kwargs)))
-            return function(*args, **kwargs)
-        return _wrap
-    return wrap
+class Log(object):
+
+    """定义日志类"""
+
+    def __init__(self, _name):
+        """
+        初始化logger
+        :param _name: 写每条log的名字
+        """
+        # structure a logger
+        self.logger = logging.getLogger(_name)
+        self.logger.setLevel(logging.INFO)
+
+        # create a log file handler
+        fh = logging.FileHandler(os.path.join(log_path, now + '.log'), encoding='utf-8')
+        fh.setLevel(logging.INFO)
+
+        # create a log terminal handler
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+
+        # define logger output format
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        ch.setFormatter(formatter)
+
+        # logger add handler function
+        self.logger.addHandler(fh)
+        self.logger.addHandler(ch)
+
+    def get_log(self):
+        """
+        return logger
+        :return:
+        """
+        return self.logger
+
+
+if __name__ == '__main__':
+
+    logger = Log('lidi').get_log()
+    logger.info('lidi test logger')
+
+
 
