@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import os, time, logging
 
-from utils import getprojectpath
+from utils import ProjectPath
 
 # create the log_path
 now = time.strftime('%Y%m%d%H%M%S')
-project_path = getprojectpath.get_project_path()  # 项目路径
+project_path = ProjectPath.get_project_path()  # 项目路径
 log_path = os.path.join(project_path, 'log')  # log文件夹路径
 if not os.path.exists(log_path):
     os.mkdir(log_path)
@@ -53,6 +53,4 @@ if __name__ == '__main__':
 
     logger = Log('lidi').get_log()
     logger.info('lidi test logger')
-
-
 
