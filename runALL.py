@@ -9,7 +9,7 @@ from utils import ProjectPath
 from utils.AppiumServer import AppiumServer
 from utils.BaseApk import getPhoneInfo, AndroidDebugBridge, getApkBaseInfo
 from utils.Parmeris import Parmer
-from utils.log import LOG, logger
+from utils.log import LOG
 from utils.BaseError import *
 
 
