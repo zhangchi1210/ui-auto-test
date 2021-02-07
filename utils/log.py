@@ -1,56 +1,58 @@
 # -*- coding: utf-8 -*-
-import os, time, logging
+import os, logbook
+import logbook.more
+from functools import wraps
 
 from utils import ProjectPath
 
 # create the log_path
-now = time.strftime('%Y%m%d%H%M%S')
 project_path = ProjectPath.get_project_path()  # 项目路径
-log_path = os.path.join(project_path, 'log')  # log文件夹路径
-if not os.path.exists(log_path):
-    os.mkdir(log_path)
+LOG_DIR = os.path.join(project_path, 'log')  # log文件夹路径
 
 
-class Log(object):
-
-    """定义日志类"""
-
-    def __init__(self, _name):
-        """
-        初始化logger
-        :param _name: 写每条log的名字
-        """
-        # structure a logger
-        self.logger = logging.getLogger(_name)
-        self.logger.setLevel(logging.INFO)
-
-        # create a log file handler
-        fh = logging.FileHandler(os.path.join(log_path, now + '.log'), encoding='utf-8')
-        fh.setLevel(logging.INFO)
-
-        # create a log terminal handler
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-
-        # define logger output format
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        fh.setFormatter(formatter)
-        ch.setFormatter(formatter)
-
-        # logger add handler function
-        self.logger.addHandler(fh)
-        self.logger.addHandler(ch)
-
-    def get_log(self):
-        """
-        return logger
-        :return:
-        """
-        return self.logger
+def logFormate(record, handler):
+    formate = "{date} {level} {filename} {lineno} {msg}".format(
+        date=record.time,               # 日志时间
+        level=record.level_name,            # 日志等级
+        filename=os.path.split(record.filename)[-1],  # 文件名
+        lineno=record.lineno,             # 行号
+        msg=record.message               # 日志内容
+        )
+    return formate
 
 
-if __name__ == '__main__':
+def initLogger(filename, fileLogFlag=True, stdOutFlag=True):
+    if not os.path.exists(LOG_DIR):
+        os.makedirs(LOG_DIR)
+    logbook.set_datetime_format('local')
+    logger = logbook.Logger(filename)
+    logger.handlers = []
 
-    logger = Log('lidi').get_log()
-    logger.info('lidi test logger')
+    if fileLogFlag:#日志输出到文件
+        logFile = logbook.TimedRotatingFileHandler(
+            os.path.join(LOG_DIR, '%s.log' % 'log'),
+            date_format='%Y-%m-%d',
+            bubble=True,
+            encoding='utf-8'
+        )
+        logFile.formatter = logFormate
+        logger.handlers.append(logFile)
+    if stdOutFlag:#日志打印到屏幕
+        logStd = logbook.more.ColorizedStderrHandler(bubble=True)
+        logStd.formatter = logFormate
+        logger.handlers.append(logStd)
+    return logger
 
+
+LOG = initLogger('log.txt')
+
+
+def logger(param):
+    def wrap(function):
+        @wraps(function)
+        def _wrap(*args, **kwargs):
+            LOG.info("当前模块 {}".format(param))
+            LOG.info("全部kwargs参数信息 , {}".format(str(kwargs)))
+            return function(*args, **kwargs)
+        return _wrap
+    return wrap

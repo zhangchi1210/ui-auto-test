@@ -1,20 +1,16 @@
 # encoding: utf-8
 import re, subprocess, os
-from utils.log import Log
+from utils.log import LOG
 
 '''
 apk文件的读取信息
 '''
 
-logger = Log('BaseApk.py').get_log()
-
 
 def getApkBaseInfo(path):
-    """
-        获取Apk的一些基本信息
-    """
+    """获取Apk的一些基本信息"""
     cmd = "aapt dump badging %s" % path
-    logger.info("执行命令：%s" % cmd)
+    LOG.info("执行命令：%s" % cmd)
     p = subprocess.Popen(cmd,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE,
@@ -47,16 +43,14 @@ def getApkBaseInfo(path):
         "appActivity": appActivity,
         "appName": appName
     }
-    logger.info("Apk基本信息：%s" % base_info)
+    LOG.info("Apk基本信息：%s" % base_info)
     return base_info
 
 
 def getPhoneInfo(devices):
-    """
-        获取设备的一些基本信息
-    """
+    """获取设备的一些基本信息"""
     cmd = "adb -s " + devices + " shell cat /system/build.prop"
-    logger.info("执行命令：%s" % cmd)
+    LOG.info("执行命令：%s" % cmd)
     phone_info = subprocess.Popen(
         cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     ).stdout.readlines()
@@ -64,7 +58,7 @@ def getPhoneInfo(devices):
     model = "ro.product.model="  # 型号
     brand = "ro.product.brand="  # 品牌
     device = "ro.product.device="  # 设备名
-    result = {"release": release, "model": model, "brand": brand, "device": device}
+    result = {"release": release}
     for line in phone_info:
         for i in line.split():
             temp = i.decode()
@@ -80,7 +74,7 @@ def getPhoneInfo(devices):
             if temp.find(device) >= 0:
                 result["device"] = temp[len(device):]
                 break
-    logger.info("移动设备信息：%s" % result)
+    LOG.info("移动设备信息：%s" % result)
     return result
 
 
@@ -104,7 +98,7 @@ class AndroidDebugBridge(object):
 
     # 获取连接的设备
     def attached_devices(self):
-        logger.info("执行命令 'adb devices' ...")
+        LOG.info("执行命令 'adb devices' ...")
         devices = []
         result = subprocess.Popen("adb devices",
                                   shell=True,
@@ -115,5 +109,5 @@ class AndroidDebugBridge(object):
             t = item.decode().split("\tdevice")
             if len(t) >= 2:
                 devices.append(t[0])
-                logger.info("设备信息: %s" % ",".join(devices))
+        LOG.info("设备信息: %s" % ",".join(devices))
         return devices

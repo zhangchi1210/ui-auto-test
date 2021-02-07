@@ -1,11 +1,10 @@
 # encoding: utf-8
 import os, urllib.request
 from multiprocessing import Process
-import threading, time, platform, subprocess
+import threading, time, platform
 
-from utils.log import Log
-
-logger = Log('AppiumServer.py').get_log()
+from utils.log import LOG
+from utils.BaseError import *
 
 
 class RunServer(threading.Thread):  # 启动服务的线程
@@ -23,19 +22,12 @@ class AppiumServer(object):  # 启动appium服务
     def __init__(self, kwargs):
         self.kwargs = kwargs
 
-    def run(self, url):
-        time.sleep(10)
-        logger.info("测试访问：%s..." % url)
-        response = urllib.request.urlopen(url, timeout=5)
-        if str(response.getcode()).startswith("2"):
-            return True
-
     def start_server(self):
         for i in range(0, len(self.kwargs)):
             cmd = "appium --session-override -p %s -U %s" % (
                 self.kwargs[i]["port"], self.kwargs[i]["devices"])
-            logger.info("执行命令 '%s' ..." % cmd)
             if platform.system() == "Windows":  # windows下启动server
+                LOG.info("执行命令 '%s' ..." % cmd)
                 t1 = RunServer(cmd)
                 p = Process(target=t1.start())
                 p.start()
@@ -43,17 +35,40 @@ class AppiumServer(object):  # 启动appium服务
                     time.sleep(4)
                     url = "http://127.0.0.1:" + self.kwargs[i]["port"] + "/wd/hub/status"
                     if self.run(url):
-                        logger.info("-------在 win 上启动 appium server 成功--------------")
+                        LOG.info("-------在 win 上启动 appium server 成功--------------")
                         break
 
-    def stop_server(devices: list):
-        sysstr = platform.system()
-        if sysstr == 'Windows':
-            os.popen("taskkill /f /im node.exe")
-        else:
-            for device in devices:
-                cmd = "lsof -i :{0}".format(device["port"])
-                plist = os.popen(cmd).readlines()
-                plisttmp = plist[1].split("    ")
-                plists = plisttmp[1].split(" ")
-                os.popen("kill -9 {0}".format(plists[0]))
+    def stop_server(self):
+        systemstr = platform.system()
+        if systemstr == "Windows":
+            for i in range(0, len(self.kwargs)):
+                port = self.kwargs[i]["port"]
+                cmd_find = 'netstat -aon | findstr "%s"' % port
+                LOG.info("执行命令 '%s' ..." % cmd_find)
+                result = os.popen(cmd_find)
+                pid_list = result.readlines()
+                if pid_list != "":
+                    for pid_info in pid_list:
+                        pid_info = pid_info.strip()
+                        if "LISTENING" in pid_info:
+                            pid = pid_info[-4:]
+                            # 执行被占用端口的pid
+                            cmd_kill = 'taskkill -f -pid "%s"' % pid
+                            LOG.info("端口：%s，执行命令 '%s' ..." % (port, cmd_kill))
+                            try:
+                                os.popen(cmd_kill)
+                            except Exception as err:
+                                raise BaseErorr("关闭Appium服务失败，原因：%s" % err)
+                            LOG.info("端口：%s，apppium-server is killed!" % port)
+                            break
+                        else:
+                            raise BaseErorr("端口：%s，The appium-server port is not occupied and is available" % port)
+                else:
+                    raise BaseErorr("端口：%s，The appium-server port is not occupied and is available" % port)
+
+    def run(self, url):
+        time.sleep(10)
+        LOG.info("测试访问：%s..." % url)
+        response = urllib.request.urlopen(url, timeout=5)
+        if str(response.getcode()).startswith("2"):
+            return True
