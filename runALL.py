@@ -3,12 +3,12 @@ import os, random, sys, unittest, subprocess
 from multiprocessing import Pool
 
 import configparser as cfgparser
+from utils.HtmlTestRunner import HTMLTestRunner
 
-from testcase.regcasetest import Regtest
 from utils import ProjectPath
 from utils.AppiumServer import AppiumServer
 from utils.BaseApk import getPhoneInfo, AndroidDebugBridge, getApkBaseInfo
-from utils.Parmeris import Parmer
+from utils.BaseRunner import ParametrizedTestCase
 from utils.log import LOG
 from utils.BaseError import *
 
@@ -16,9 +16,11 @@ from utils.BaseError import *
 project_path = ProjectPath.get_project_path()  # 项目路径
 app_path = os.path.join(project_path, 'app')  # app文件夹路径
 config_path = os.path.join(project_path, 'config')  # config文件夹路径
+case_path = os.path.join(project_path, 'testcase')  # testcase文件夹路径
 result_path = os.path.join(project_path, 'result')  # result文件夹路径
 
 configPath = os.path.join(config_path, 'config.ini')
+caseListPath = os.path.join(config_path, "case.ini")
 cfg = cfgparser.ConfigParser()
 cfg.read(configPath, encoding='utf-8')
 target_app = cfg.get('TEST_APP', 'target_app')
@@ -151,9 +153,56 @@ def runnerCaseApp(devices):
     """
         利用unittest的testsuite来组织测试用例
     """
-    test_suit = unittest.TestSuite()
-    test_suit.addTest(Parmer.parametrize(Regtest, param=devices))  # 扩展的其他的测试用例均这样添加
-    unittest.TextTestRunner(verbosity=2).run(test_suit)
+    execute_case_list = set_case_list()
+    suite_module = []
+    print("execute_case_list:")
+    for case in execute_case_list:
+        num = execute_case_list.index(case) + 1
+        case_name = case.split("/")[-1]  # 通过split函数来将aaa/bbb分割字符串，-1取后面，0取前面
+        print("\t%s.%s" % (num, case_name))  # 打印出取出来的名称
+        discover = unittest.defaultTestLoader.discover(case_path, pattern=case_name + '.py', top_level_dir=None)
+        suite_module.append(discover)
+    ParametrizedTestCase(params=devices)
+
+    test_suite = unittest.TestSuite()
+    if len(suite_module) > 0:  # 判断suite_module元素组是否存在元素
+        for suite in suite_module:  # 如果存在，循环取出元素组内容，命名为suite
+            for test_name in suite:  # 从discover中取出test_name，使用addTest添加到测试集
+                test_suite.addTest(test_name)
+    else:
+        print('else:')
+        return None
+
+
+    # discover = unittest.defaultTestLoader.discover(case_path, pattern='test*.py', top_level_dir=None)
+    # ParametrizedTestCase(params=devices)
+    # LOG.info(discover)
+    # runner = unittest.TextTestRunner()
+    # runner.run(discover)
+
+    report_path = os.path.join(result_path, 'result_%s.html' % devices["deviceName"].split(":")[1])
+    with(open(report_path, 'wb')) as fp:
+        runner = HTMLTestRunner(
+            stream=fp,
+            verbosity=2,
+            title='<project name>test report',
+            description='describe: ... '
+        )
+        runner.run(test_suite)
+
+
+def set_case_list():
+    """
+        读取caselist.txt文件中的用例名称，并添加到caselist元素组
+    :return:
+    """
+    execute_case_list = []
+    with open(caseListPath) as f:
+        for value in f.readlines():
+            data = str(value)
+            if data != '' and not data.startswith("#"):  # 如果data非空且不以#开头
+                execute_case_list.append(data.replace("\n", ""))  #读取每行数据会将换行转换为\n，去掉每行数据中的\n
+    return execute_case_list
 
 
 if __name__ == '__main__':
