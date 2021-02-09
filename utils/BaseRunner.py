@@ -30,17 +30,18 @@ class ParametrizedTestCase(unittest.TestCase):
         LOG.info('>>> A test_suite is finished <<<')
 
 
-def appium_desired_caps(devices):
+def appium_desired_caps(device):
     des_caps = {
         'platformName': 'Android',
-        'deviceName': devices['deviceName'],
-        'udid': devices['deviceName'],
-        'appPackage': devices['appPackage'],
-        'appActivity': devices['appActivity'],
+        'deviceName': device['deviceName'],
+        'udid': device['deviceName'],
+        'appPackage': device['appPackage'],
+        'appActivity': device['appActivity'],
         'automationName': 'UiAutomator2'
     }
     LOG.info('desired_caps: %s' % des_caps)
-    remote = 'http://localhost:%s/wd/hub' % devices['port']
+    remote = 'http://127.0.0.1:%s/wd/hub' % device['port']
+    LOG.info(remote)
     driver = webdriver.Remote(remote, des_caps)
     LOG.info('driver start-up successful!')
     return driver

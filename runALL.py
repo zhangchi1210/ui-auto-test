@@ -3,7 +3,7 @@ import os, random, sys, unittest, subprocess
 from multiprocessing import Pool
 
 import configparser as cfgparser
-from utils.HtmlTestRunner import HTMLTestRunner
+from utils.HTMLTestRunner import HTMLTestRunner
 
 from utils import ProjectPath
 from utils.AppiumServer import AppiumServer
@@ -69,44 +69,31 @@ class AllTest:
         appium_server = AppiumServer(self.l_devices)
         appium_server.start_server()
 
-        """判断结果文件result/report.xml是否存在"""
-        if not os.path.exists(result_path):
-            os.makedirs(result_path)
-        self.resultPath = os.path.join(result_path, "result.xls")
+    def runnerPool(self):
+        """
+            根据连接的设备生成不同的dict
+            然后放到设备的list里面
+            设备list的长度产生进程池大小
+        """
+        devices_pool = []
+        for i in range(0, len(self.l_devices)):
+            _initApp = {
+                "deviceName": self.l_devices[i]["devices"],
+                "udid": self.l_devices[i]["devices"],
+                "platformVersion": getPhoneInfo(devices=self.l_devices[i]["devices"])["release"],
+                "platformName": "android",
+                "port": self.l_devices[i]["port"],
+                "appPackage": self.app_info["packageName"],
+                "appActivity": self.app_info["appActivity"]
+            }
+            devices_pool.append(_initApp)
 
-    def run(self):
-        runnerPool(self.l_devices, self.app_info)
-
-        """关闭Appium服务"""
-        appium_server = AppiumServer(self.l_devices)
-        appium_server.stop_server()
-
-
-def runnerPool(devices, app_info):
-    """
-        根据连接的设备生成不同的dict
-        然后放到设备的list里面
-        设备list的长度产生进程池大小
-    """
-    devices_pool = []
-    for i in range(0, len(devices)):
-        _initApp = {
-            "deviceName": devices[i]["devices"],
-            "udid": devices[i]["devices"],
-            "platformVersion": getPhoneInfo(devices=devices[i]["devices"])["release"],
-            "platformName": "android",
-            "port": devices[i]["port"],
-            "appPackage": app_info["packageName"],
-            "appActivity": app_info["appActivity"]
-        }
-        devices_pool.append(_initApp)
-
-    LOG.info("进程数量：%s" % len(devices_pool))
-    pool = Pool(len(devices_pool))
-    # """运行测试用例"""
-    pool.map(runnerCaseApp, devices_pool)
-    pool.close()
-    pool.join()
+        LOG.info("进程数量：%s" % len(devices_pool))
+        pool = Pool(len(devices_pool))
+        # """运行测试用例"""
+        pool.map(runnerCaseApp, devices_pool)
+        pool.close()
+        pool.join()
 
 
 def installApp(app_dict):
@@ -155,13 +142,14 @@ def runnerCaseApp(devices):
     """
     execute_case_list = set_case_list()
     suite_module = []
-    print("execute_case_list:")
+    print("运行测试用例：")
     for case in execute_case_list:
         num = execute_case_list.index(case) + 1
         case_name = case.split("/")[-1]  # 通过split函数来将aaa/bbb分割字符串，-1取后面，0取前面
         print("\t%s.%s" % (num, case_name))  # 打印出取出来的名称
         discover = unittest.defaultTestLoader.discover(case_path, pattern=case_name + '.py', top_level_dir=None)
         suite_module.append(discover)
+
     ParametrizedTestCase(params=devices)
 
     test_suite = unittest.TestSuite()
@@ -173,22 +161,17 @@ def runnerCaseApp(devices):
         print('else:')
         return None
 
-
-    # discover = unittest.defaultTestLoader.discover(case_path, pattern='test*.py', top_level_dir=None)
-    # ParametrizedTestCase(params=devices)
-    # LOG.info(discover)
-    # runner = unittest.TextTestRunner()
-    # runner.run(discover)
-
+    if not os.path.exists(result_path):
+        os.makedirs(result_path)
     report_path = os.path.join(result_path, 'result_%s.html' % devices["deviceName"].split(":")[1])
     with(open(report_path, 'wb')) as fp:
         runner = HTMLTestRunner(
             stream=fp,
             verbosity=2,
-            title='<project name>test report',
-            description='describe: ... '
+            title='Ui Auto Test Report'
         )
         runner.run(test_suite)
+    LOG.info("测试报告:%s" % report_path)
 
 
 def set_case_list():
@@ -205,11 +188,19 @@ def set_case_list():
     return execute_case_list
 
 
-if __name__ == '__main__':
+def run():
     try:
-        AllTest().run()
-        sys.exit(0)
+        all_test = AllTest()
+        all_test.runnerPool()
     except Exception as e:
         LOG.error("运行程序失败，原因：%s" % e)
-        sys.exit(1)
+    finally:
+        """关闭Appium服务"""
+        appium_server = AppiumServer(all_test.l_devices)
+        appium_server.stop_server()
+        sys.exit()
+
+
+if __name__ == '__main__':
+    run()
 

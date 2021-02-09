@@ -1,11 +1,15 @@
 # encoding: utf-8
 import time
 
-from utils.BaseRunner import ParametrizedTestCase
 from utils.log import LOG
+from utils.BaseRunner import ParametrizedTestCase
 
 
 class LoginTest(ParametrizedTestCase):
+
+    def testlogin(self):
+        time.sleep(10)
+        LOG.info("10")
 
     @classmethod
     def setUpClass(cls):
@@ -14,11 +18,3 @@ class LoginTest(ParametrizedTestCase):
     @classmethod
     def tearDownClass(cls):
         super(LoginTest, cls).tearDownClass()
-
-    def testopen(self):
-        time.sleep(10)
-        LOG.info("LoginTest")
-
-    def testclose(self):
-        time.sleep(10)
-        LOG.info("testclose")
