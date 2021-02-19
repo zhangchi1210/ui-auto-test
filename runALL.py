@@ -158,7 +158,6 @@ def runnerCaseApp(devices):
             for test_name in suite:  # 从discover中取出test_name，使用addTest添加到测试集
                 test_suite.addTest(test_name)
     else:
-        print('else:')
         return None
 
     if not os.path.exists(result_path):

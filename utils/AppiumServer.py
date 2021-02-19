@@ -80,3 +80,8 @@ def get_pid(port):
             if "LISTENING" in pid_info:
                 pid = pid_info.split(" ")[-1]
     return pid
+
+
+if __name__ == '__main__':
+    appium_server = AppiumServer([{"devices": "127.0.0.1:21503 device", "port": "4723"}])
+    appium_server.start_server()

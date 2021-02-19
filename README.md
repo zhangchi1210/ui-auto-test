@@ -31,6 +31,5 @@
 * page - 通过base页，添加定位元素，将Base页封装的方法拿来调用
 * result - 存放测试结果
 * testcase - 通过page页调用方法来实现用例
-* testdata - 存放测试驱动数据（excel格式）
 * untils - 存放基础工具类
 * runAll.py - 主脚本
