@@ -1,0 +1,33 @@
+2021-20-02 13:20:07 INFO runALL.py 39 -- 开始测试APP：app_1.1.3_dev.apk...
+2021-20-02 13:20:07 INFO BaseApk.py 101 -- 执行命令 'adb devices' ...
+2021-20-02 13:20:07 INFO BaseApk.py 112 -- 设备信息: 127.0.0.1:21503
+2021-20-02 13:20:07 INFO BaseApk.py 13 -- 执行命令：aapt dump badging E:\04_script\zhangchi\ui-auto-test\app\app_1.1.3_dev.apk
+2021-20-02 13:20:07 INFO BaseApk.py 46 -- Apk基本信息：{'packageName': 'com.kjyun.app.phonecloud', 'appKey': '1', 'appVersion': '1.1.3', 'appActivity': 'com.ryun.app.ryunapp.MainActivity', 'appName': '鲲鲸云手机'}
+2021-20-02 13:20:08 INFO runALL.py 107 -- 设备：127.0.0.1:21503，执行命令：adb -s 127.0.0.1:21503 shell pm list packages | find "com.kjyun.app.phonecloud"
+2021-20-02 13:20:08 INFO runALL.py 112 -- 设备：127.0.0.1:21503，已安装App: com.kjyun.app.phonecloud
+2021-20-02 13:20:08 INFO runALL.py 116 -- 设备：127.0.0.1:21503，执行命令：adb -s 127.0.0.1:21503 uninstall com.kjyun.app.phonecloud
+2021-20-02 13:20:08 INFO runALL.py 121 -- 设备：127.0.0.1:21503，成功卸载App！
+2021-20-02 13:20:08 INFO runALL.py 129 -- 设备：127.0.0.1:21503，执行命令：adb -s 127.0.0.1:21503 install E:\04_script\zhangchi\ui-auto-test\app\app_1.1.3_dev.apk
+2021-20-02 13:20:09 INFO runALL.py 134 -- 设备：127.0.0.1:21503，成功安装Apk文件！
+2021-20-02 13:20:09 INFO AppiumServer.py 30 -- 执行命令 'appium --session-override -p 4723 -U 127.0.0.1:21503' ...
+2021-20-02 13:20:23 INFO AppiumServer.py 64 -- 测试访问：http://127.0.0.1:4723/wd/hub/status...
+2021-20-02 13:20:23 INFO AppiumServer.py 38 -- -------在 win 上启动 appium server 成功--------------
+2021-20-02 13:20:23 INFO BaseApk.py 53 -- 执行命令：adb -s 127.0.0.1:21503 shell cat /system/build.prop
+2021-20-02 13:20:23 INFO BaseApk.py 77 -- 移动设备信息：{'release': '7.1.2'}
+2021-20-02 13:20:23 INFO runALL.py 91 -- 进程数量：1
+2021-20-02 13:20:23 INFO BaseRunner.py 42 -- desired_caps: {'platformName': 'Android', 'deviceName': '127.0.0.1:21503', 'udid': '127.0.0.1:21503', 'appPackage': 'com.kjyun.app.phonecloud', 'appActivity': 'com.ryun.app.ryunapp.MainActivity', 'automationName': 'UiAutomator2'}
+2021-20-02 13:20:23 INFO BaseRunner.py 44 -- http://127.0.0.1:4723/wd/hub
+2021-20-02 13:20:31 INFO BaseRunner.py 46 -- driver start-up successful!
+2021-20-02 13:20:31 INFO BaseRunner.py 25 -- >>> A test_suite is starting <<<
+2021-20-02 13:20:45 INFO GuidePage.py 14 -- >>> slide left <<<
+2021-20-02 13:20:46 INFO GuidePage.py 18 -- >>> slide right <<<
+2021-20-02 13:20:47 INFO GuidePage.py 14 -- >>> slide left <<<
+2021-20-02 13:20:51 INFO GuidePage.py 14 -- >>> slide left <<<
+2021-20-02 13:20:51 INFO GuidePage.py 18 -- >>> slide right <<<
+2021-20-02 13:20:52 INFO GuidePage.py 14 -- >>> slide left <<<
+2021-20-02 13:20:55 INFO GuidePage.py 23 -- >>> click '立即体验' button <<<
+2021-20-02 13:21:06 INFO BaseRunner.py 30 -- >>> A test_suite is finished <<<
+2021-20-02 13:21:06 INFO runALL.py 173 -- 测试报告:E:\04_script\zhangchi\ui-auto-test\result\result_21503.html
+2021-20-02 13:21:06 INFO AppiumServer.py 74 -- 执行命令 'netstat -aon | findstr "4723"' ...
+2021-20-02 13:21:06 INFO AppiumServer.py 50 -- 端口：4723，执行命令 'taskkill -f -pid "11720"' ...
+2021-20-02 13:21:06 INFO AppiumServer.py 55 -- 端口：4723，apppium-server is killed!

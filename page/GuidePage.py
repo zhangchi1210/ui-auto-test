@@ -25,8 +25,8 @@ class GuidePage(object):
     def check(self):
         try:
             el = self.operate.find_element("desc", u"添加云手机")
-            print(el)
+            # print(el)
             return True
-        except NotImplementedError as e:
+        except Exception as e:
             return False
 
